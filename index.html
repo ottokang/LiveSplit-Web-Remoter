@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>
+        <title>LiveSplit 網路遙控器</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+
+    <body>
+        <h1>LiveSplit 網路遙控器</h1>
+        <div class="row">
+            <label for="ip">IP 位址：</label>
+            <input type="text" id="ip" value="localhost" onfocus="this.select()" />
+        </div>
+        <div class="row">
+            <label for="threshold">音量門檻：</label>
+            <input type="number" id="threshold" value="50" min="0" max="100" onfocus="this.select()" />
+        </div>
+        <div class="row">
+            <button id="startTimer">開始計時</button>
+            <button id="resetTimer">重設計時</button>
+        </div>
+        <div class="row">
+            <button id="startVolumeDetect">開始音量偵測</button>
+        </div>
+        <div class="row">延遲：<span id="latency"></span></div>
+        <div class="row">音量：<span id="volume"></span></div>
+        <script src="js/remoter.js"></script>
+        <script src="js/volumeDetect.js"></script>
+        <script src="js/binds.js"></script>
+    </body>
+</html>

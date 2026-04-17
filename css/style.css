@@ -1,0 +1,23 @@
+.row {
+    margin: 1em 0 1em 1em;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
+}
+
+input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    padding: 5px;
+    width: 200px;
+}
+
+input:focus {
+    background-color: #fffde7;
+}
