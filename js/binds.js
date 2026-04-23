@@ -2,7 +2,7 @@
 
 // 綁定 IP 輸入框 change 事件
 document.getElementById("ip").addEventListener("change", (e) => {
-    remoter.changeURL(`ws://${e.target.value}:16834/livesplit`);
+    remoter.changeURL(e.target.value);
 });
 
 // 綁定開始計時按鈕

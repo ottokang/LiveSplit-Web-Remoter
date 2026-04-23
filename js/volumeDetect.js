@@ -8,9 +8,11 @@ let isCoolingDown = false;
 let threshold;
 let thresholdElem = document.getElementById("threshold");
 let volumeElem = document.getElementById("volume");
+let volumeRowElem = document.getElementById("volumeRow");
 
 // 開始音量偵測，請求麥克風權限並處理可能的錯誤
 async function startVolumeDetect() {
+    volumeRowElem.classList.remove("hidden");
     try {
         audioContext = new AudioContext();
         const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -32,7 +34,6 @@ async function startVolumeDetect() {
         } else {
             errorMessage = `未知錯誤：${err.message}`;
         }
-
         volumeElem.innerText = errorMessage;
         volumeElem.className = "red";
         return;

@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>LiveSplit 網路遙控器</title>
-        <meta charset="utf-8">
+        <meta charset="utf-8" />
         <link rel="stylesheet" href="css/style.css" />
     </head>
 
@@ -24,7 +24,8 @@
             <button id="startVolumeDetect">開始音量偵測</button>
         </div>
         <div class="row">延遲：<span id="latency"></span></div>
-        <div class="row">音量：<span id="volume"></span></div>
+        <div id="currentTimeRow" class="row hidden">計時：<span id="currentTime"></span></div>
+        <div id="volumeRow" class="row hidden">音量：<span id="volume"></span></div>
         <script src="js/remoter.js"></script>
         <script src="js/volumeDetect.js"></script>
         <script src="js/binds.js"></script>

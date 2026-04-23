@@ -7,12 +7,13 @@ class LSRemoter {
     #latencyHistory = [];
     #averageLatency = 0;
     #pingStart;
-    #url;
+    #url = `ws://${document.getElementById("ip").value}:16834/livesplit`;
     #maxHistory = 10;
     #latencyElem = document.getElementById("latency");
+    #currentTime = document.getElementById("currentTime");
+    #currentTimeRowElem = document.getElementById("currentTimeRow");
 
-    constructor(url) {
-        this.#url = url;
+    constructor() {
         this.#initConnection();
 
         // 自動重連
@@ -20,57 +21,82 @@ class LSRemoter {
             this.#reconnect();
         }, 5000);
 
-        // 自動發送 ping
+        // 自動發送 ping，偵測延遲
         setInterval(() => {
             if (this.#ws.readyState === WebSocket.OPEN) {
                 this.#pingStart = performance.now();
                 this.#ws.send("ping");
             }
         }, 500);
+
+        // 自動更新計時器現有時間
+        setInterval(() => {
+            if (this.#ws.readyState === WebSocket.OPEN) {
+                this.#ws.send("getcurrenttime");
+            }
+        }, 250);
     }
 
     // 初始連線、綁定事件
     #initConnection() {
-        this.#ws = new WebSocket(this.#url);
-
         this.#latencyElem.textContent = "正在連線...";
         this.#latencyElem.className = "green";
 
+        // 處理不合法位址輸入的錯誤
+        try {
+            this.#ws = new WebSocket(this.#url);
+        } catch (error) {
+            console.error(`[error] 網址 ${this.#url} 錯誤，請檢查輸入的 IP 位址是否正確`);
+            this.#latencyElem.textContent = `網址錯誤，請檢查輸入的 IP 位址是否正確`;
+            this.#latencyElem.className = "red";
+            this.#disableButton();
+            this.#currentTimeRowElem.classList.add("hidden");
+        }
+
+        // 成功連線事件處理
         this.#ws.addEventListener("open", () => {
             this.#connected = true;
             console.log(`[open] 連線到 ${this.#url} 成功`);
             this.#enableButton();
+            this.#currentTimeRowElem.classList.remove("hidden");
         });
 
+        // 連線錯誤事件處理
         this.#ws.addEventListener("error", (err) => {
             this.#connected = false;
-            console.log(`[error] 連線失敗，請檢查 LiveSplit 是否啟動 Websocket Server`);
+            console.log(`[error] 連線到 ${this.#url} 失敗，請檢查 LiveSplit 是否啟動 Websocket Server`);
             this.#latencyElem.textContent = "連線失敗，請檢查 LiveSplit 是否啟動 Websocket Server";
             this.#latencyElem.className = "red";
             this.#disableButton();
+            this.#currentTimeRowElem.classList.add("hidden");
         });
 
-        this.#ws.addEventListener("close", () => {
-        });
-
-        this.#ws.addEventListener("message", () => {
-            const latencyNow = performance.now() - this.#pingStart;
-            this.#latencyHistory.push(latencyNow);
-            if (this.#latencyHistory.length > this.#maxHistory) {
-                this.#latencyHistory.shift();
+        // 接收訊息事件處理，更新延遲和計時器現有時間
+        this.#ws.addEventListener("message", (event) => {
+            if (event.data === "pong") {
+                const latencyNow = performance.now() - this.#pingStart;
+                this.#latencyHistory.push(latencyNow);
+                if (this.#latencyHistory.length > this.#maxHistory) {
+                    this.#latencyHistory.shift();
+                }
+                this.#averageLatency = this.#latencyHistory.reduce((a, b) => a + b, 0) / this.#latencyHistory.length;
+                this.#latencyElem.textContent = `${this.#averageLatency.toFixed(2)} ms，（${(this.#averageLatency / 1000).toFixed(3)} 秒）`;
+                this.#latencyElem.className = "";
+            } else {
+                this.#currentTime.textContent = event.data.toString().substring(3, 11);
             }
-            this.#averageLatency = this.#latencyHistory.reduce((a, b) => a + b, 0) / this.#latencyHistory.length;
-            this.#latencyElem.textContent = `${this.#averageLatency.toFixed(2)} ms，（${(this.#averageLatency / 1000).toFixed(3)} 秒）`;
-            this.#latencyElem.className = "";
+        });
+
+        // 連線關閉事件處理（未使用）
+        this.#ws.addEventListener("close", () => {
         });
     }
 
     // 重新連線
     #reconnect() {
         if (this.#ws.readyState === WebSocket.CLOSED) {
-            /*
             console.log(`正在嘗試重新連線...`);
-            this.#initConnection();*/
+            this.#initConnection();
         }
     }
 
@@ -87,11 +113,11 @@ class LSRemoter {
     }
 
     // 變更連線網址，重新連線
-    changeURL(newURL) {
+    changeURL(ip) {
         if (this.#ws.readyState === WebSocket.OPEN) {
             this.#ws.close();
         }
-        this.#url = newURL;
+        this.#url = `ws://${ip}:16834/livesplit`;
         this.#initConnection();
     }
 
@@ -115,4 +141,4 @@ class LSRemoter {
 }
 
 // 初始化物件
-let remoter = new LSRemoter(`ws://${document.getElementById("ip").value}:16834/livesplit`);
+let remoter = new LSRemoter();

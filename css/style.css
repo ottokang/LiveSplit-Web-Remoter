@@ -10,6 +10,14 @@
     color: green;
 }
 
+.hidden {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
 input {
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -20,4 +28,13 @@ input {
 
 input:focus {
     background-color: #fffde7;
+}
+
+#currentTime {
+    font-family: monospace;
+    font-weight: bold;
+}
+
+#latency {
+    font-family: monospace;
 }
